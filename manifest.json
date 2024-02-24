@@ -1,0 +1,28 @@
+{
+  "description": "A plugin for faster navigation of bookmarks",
+  "homepage_url": "http://example.com",
+  "manifest_version": 2,
+  "name": "Quick Bookmark",
+  "permissions": [
+    "bookmarks"
+  ],
+  "sidebar_action": {
+    "default_title": "Quick Bookmark",
+    "default_panel": "sidebar.html"
+  },
+  "version": "1.0",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "theme-integrated-sidebar@mozilla.org",
+      "strict_min_version": "58.0a1"
+    }
+  },
+  "commands": {
+    "_execute_sidebar_action": {
+      "suggested_key": {
+        "default": "Ctrl+E",
+        "linux": "Ctrl+E"
+      }
+    }
+  }
+}
