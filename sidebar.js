@@ -4,6 +4,8 @@
 
 var bookmarksTree //global bookmarks variable
 var bookmarksList = []//
+var listIndex = undefined //index for currently focused bookmark
+
 
 async function setup(){
     window.focus()
@@ -38,7 +40,6 @@ browser.windows.getCurrent({populate: true}).then(windowInfo => {
 // recursively add html elements for the bookmarks
 // todo display folders
 function displayBookmarkTree(bookmarks){
-
     bookmarks.children.forEach(bookmark => {
         if(bookmark.type == "folder"){
             displayBookmarkTree(bookmark)
@@ -84,7 +85,7 @@ setup()
 */
 
 addEventListener("keypress", (event) => {
-    console.log(event.key)
+    console.log(event)
 
     //if the search field is focused, the keyevents should be ignored
     let searchField = document.getElementById("bookmarkSearchField")
@@ -113,10 +114,9 @@ addEventListener("keypress", (event) => {
     }
     else if(event.key == "/"){
         focusSearchField()
+        listIndex = undefined
     }
 });
-
-var listIndex = undefined
 
 // up is a boolean which decides if you are movin up or down
 function move(up){
@@ -178,7 +178,7 @@ function focusSearchField(){
 }
 
 /*
- * searching logic
+ * searching 
 */
 
 const searchField = document.getElementById("bookmarkSearchField")
