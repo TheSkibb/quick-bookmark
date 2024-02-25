@@ -1,16 +1,18 @@
 /*
-    * logic for setup the list of bookmarks
+    * setup (needs to be inside async funtion to use browser api)
 */
+
+var bookmarksTree //global bookmarks variable
+var bookmarksList = []//
+
 async function setup(){
     window.focus()
     const bookmarkTreenodes = await browser.bookmarks.getTree()
 
-    //we are only interested in toolbar bookmarks
-    //may change
-    bookmarks = bookmarkTreenodes[0].children[1]
+    //we are only interested in toolbar bookmarks (may change)
+    bookmarksTree = bookmarkTreenodes[0].children[1]
 
-    displayBookmarks(bookmarks)
-
+    displayBookmarkTree(bookmarksTree)
 }
 
 //let event = new CustomEvent("SidebarFocused", { bubbles: true });
@@ -19,8 +21,7 @@ async function setup(){
 window.addEventListener("SidebarFocused", () =>{
     console.log("focus sidebar")
     document.getElementById("bookmarkSearchField").focus()
-}
-);
+});
 
 // Focus the sidebar
 browser.windows.getCurrent({populate: true}).then(windowInfo => {
@@ -36,20 +37,30 @@ browser.windows.getCurrent({populate: true}).then(windowInfo => {
 
 // recursively add html elements for the bookmarks
 // todo display folders
-function displayBookmarks(bookmarks){
+function displayBookmarkTree(bookmarks){
 
     bookmarks.children.forEach(bookmark => {
         if(bookmark.type == "folder"){
-            displayBookmarks(bookmark)
+            displayBookmarkTree(bookmark)
         }
         else{
             //console.log(bookmark.title)
-            addBookmarkElement(bookmark)
+            bookmarksList.push(bookmark)
         }
+    });
+    displayBookmarkList(bookmarksList)
+}
+
+// display bookmarks from list
+function displayBookmarkList(bookmarks){
+    clearBookmarks()
+
+    bookmarks.forEach(bookmark => {
+        addBookmarkElement(bookmark)
     });
 }
 
-// adds
+// adds a bookmark to the bookmarkList element
 function addBookmarkElement(bookmark){
     const bookmarkList = document.getElementById("bookmarkList")
 
@@ -60,12 +71,16 @@ function addBookmarkElement(bookmark){
     bookmarkList.appendChild(bookmarkElement)
 }
 
+// empties list of bookmarks in bookmarkList element
+function clearBookmarks(){
+    const bookmarkList = document.getElementById("bookmarkList")
+    bookmarkList.innerHTML = ""
+}
+
 setup()
 
-
 /* 
-    * logic for paring the list and 
-    * create an event listener which listens to keypresses 
+    * keypress handler
 */
 
 addEventListener("keypress", (event) => {
@@ -80,11 +95,9 @@ addEventListener("keypress", (event) => {
             //unfocus the search bar
             searchField.blur()
         }
-
         //todo: fuzzy find through the bookmarks
         return
     }
-
     
     if(event.key == "k"){
         move(true)
@@ -93,7 +106,7 @@ addEventListener("keypress", (event) => {
         move(false)
     }
     else if(event.key == "Enter"){
-        openselected("enter")
+        openselected("Enter")
     }
     else if(event.key == "l"){
         openselected("l")
@@ -134,6 +147,7 @@ function move(up){
 }
 
 function focusElement(elementIndex, up){
+
     let prevItem = up? elementIndex+1 : elementIndex-1
 
     let bookmarkElements = document.getElementsByClassName("bookmarkElement")
@@ -142,12 +156,14 @@ function focusElement(elementIndex, up){
     bookmarkElements.item(prevItem).classList.remove("bookmarkElementFocused")
 }
 
+// opens selected bookmark.
+// allowed methods are Enter (new tab) and l (in sidebar)
 function openselected(method){
     // NB: may fail if bookmarkelements get more children
     let bookmarkLink  = document.getElementsByClassName("bookmarkElementFocused")[0].children[0]
 
     //open the url in a new tab
-    if(method == "enter"){
+    if(method == "Enter"){
         window.open(bookmarkLink.href)
     }
     //open window in sidebar
@@ -161,3 +177,56 @@ function focusSearchField(){
     searchField.focus()
 }
 
+/*
+ * searching logic
+*/
+
+const searchField = document.getElementById("bookmarkSearchField")
+searchField.oninput = function(){
+    //if the search query is empty, display the original bookmark list
+    if(searchField.value == ""){
+        displayBookmarkList(bookmarksList)
+    }
+    else{
+        fuzzyFindBookmarks(searchField.value)
+    }
+}
+
+function fuzzyFindBookmarks(searchStr){
+    console.log(searchStr)
+
+    bookmarksList.forEach(bookmark => {
+        let titleMatch = strMatch(searchStr, bookmark.title)
+        bookmark.match = titleMatch
+    });
+
+    bookmarksList.sort((a, b) => {
+        return b.match - a.match
+    })
+    console.log(bookmarksList[0].match)
+    console.log(bookmarksList)
+
+    displayBookmarkList(bookmarksList)
+}
+
+function strMatch(str1, str2){
+    str1 = str1.toLowerCase();
+    str2 = str2.toLowerCase();
+    
+    let str1Array = str1.split('');
+    let str2Array = str2.split('');
+    
+    let matchedCount = 0;
+    let lastIndex = -1;
+    
+    for (let i = 0; i < str1Array.length; i++) {
+        let index = str2Array.indexOf(str1Array[i], lastIndex + 1);
+        if (index > lastIndex) {
+            matchedCount++;
+            lastIndex = index;
+        }
+    }
+    
+    let score = matchedCount / str1Array.length;
+    return score;
+}
