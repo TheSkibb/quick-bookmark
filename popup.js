@@ -95,6 +95,7 @@ addEventListener("keypress", (event) => {
         if(event.key == "Enter"){
             //unfocus the search bar
             searchField.blur()
+            move(false)
         }
         //todo: fuzzy find through the bookmarks
         return
