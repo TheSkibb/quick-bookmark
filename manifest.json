@@ -8,12 +8,12 @@
   ],
   "browser_action": {
     "default_title": "Quick Bookmark",
-    "default_popup": "sidebar.html"
+    "default_popup": "popup.html"
   },
   "version": "1.0",
   "browser_specific_settings": {
     "gecko": {
-      "id": "theme-integrated-sidebar@mozilla.org",
+      "id": "quick-bookmark@mozilla.org",
       "strict_min_version": "58.0a1"
     }
   },
