@@ -116,6 +116,10 @@ addEventListener("keypress", (event) => {
     }
 });
 
+/*
+ * movement
+*/
+
 // up is a boolean which decides if you are movin up or down
 function move(up){
     const maxIndex = document.getElementsByClassName("bookmarkElement").length
@@ -203,24 +207,33 @@ function fuzzyFindBookmarks(searchStr){
     displayBookmarkList(bookmarksList)
 }
 
-function strMatch(str1, str2){
-    str1 = str1.toLowerCase();
-    str2 = str2.toLowerCase();
-    
-    let str1Array = str1.split('');
-    let str2Array = str2.split('');
-    
-    let matchedCount = 0;
-    let lastIndex = -1;
-    
-    for (let i = 0; i < str1Array.length; i++) {
-        let index = str2Array.indexOf(str1Array[i], lastIndex + 1);
-        if (index > lastIndex) {
-            matchedCount++;
-            lastIndex = index;
+function strMatch(a /*user query */, b /* string from list*/){
+    a = a.toLowerCase().replace(/\s+/g, "").split('')
+    b = b.toLowerCase().replace(/\s+/g, "").split('')
+
+    let matchScore = 0
+    let matchIndex = 0
+
+    for(let i=0; i<a.length; i++){
+        let char_a = a[i]
+
+        for(let j=0+matchIndex; j<b.length; j++){
+
+            let char_b = b[j]
+
+            if(char_a == char_b){
+                matchScore += a.length / (j+1)
+                //console.log("found match at index", j, char_a, char_b, a.length - (j+1), matchScore)
+                matchIndex = j
+                b.pop(j)
+                break
+            }
         }
     }
-    
-    let score = matchedCount / str1Array.length;
-    return score;
+
+    matchScore = matchScore / b.length
+
+    //console.log(matchScore)
+
+    return matchScore
 }
