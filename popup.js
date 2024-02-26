@@ -109,9 +109,6 @@ addEventListener("keypress", (event) => {
     else if(event.key == "Enter"){
         openselected("Enter")
     }
-    else if(event.key == "l"){
-        openselected("l")
-    }
     else if(event.key == "/"){
         focusSearchField()
         listIndex = undefined
@@ -165,10 +162,6 @@ function openselected(method){
     //open the url in a new tab
     if(method == "Enter"){
         window.open(bookmarkLink.href)
-    }
-    //open window in sidebar
-    else if(method == "l"){
-        window.location.replace(bookmarkLink.href)
     }
 }
 
