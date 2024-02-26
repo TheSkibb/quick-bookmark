@@ -6,9 +6,9 @@
   "permissions": [
     "bookmarks"
   ],
-  "sidebar_action": {
+  "browser_action": {
     "default_title": "Quick Bookmark",
-    "default_panel": "sidebar.html"
+    "default_popup": "sidebar.html"
   },
   "version": "1.0",
   "browser_specific_settings": {
@@ -18,7 +18,7 @@
     }
   },
   "commands": {
-    "_execute_sidebar_action": {
+    "_execute_browser_action": {
       "suggested_key": {
         "default": "Ctrl+E",
         "linux": "Ctrl+E"
