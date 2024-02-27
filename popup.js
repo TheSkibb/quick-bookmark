@@ -8,6 +8,7 @@ var listIndex = undefined //index for currently focused bookmark
 
 
 async function setup(){
+    console.log(browser.action)
     window.focus()
     const bookmarkTreenodes = await browser.bookmarks.getTree()
 
@@ -99,7 +100,7 @@ setup()
 */
 
 addEventListener("keypress", (event) => {
-    console.log(event)
+    //console.log(event)
 
     //if the search field is focused, the keyevents should be ignored
     let searchField = document.getElementById("bookmarkSearchField")
@@ -123,6 +124,7 @@ addEventListener("keypress", (event) => {
     }
     else if(event.key == "Enter"){
         openselected("Enter")
+        window.close()
     }
     else if(event.key == "/"){
         focusSearchField()
