@@ -17,14 +17,6 @@ async function setup(){
     displayBookmarkTree(bookmarksTree)
 }
 
-//let event = new CustomEvent("SidebarFocused", { bubbles: true });
-//browser.contentWindow.dispatchEvent(event);
-
-window.addEventListener("SidebarFocused", () =>{
-    console.log("focus sidebar")
-    document.getElementById("bookmarkSearchField").focus()
-});
-
 // Focus the sidebar
 browser.windows.getCurrent({populate: true}).then(windowInfo => {
     console.log("setting focus test")
