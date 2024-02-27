@@ -141,10 +141,10 @@ function move(up){
 
     if(listIndex == null){
         listIndex = 0
-        console.log("listindex is null")
+        //console.log("listindex is null")
     }
     else if(up && listIndex != 0){
-        console.log("movin up")
+        //console.log("movin up")
         listIndex -= 1
     }
     else if(!up && listIndex < maxIndex -1){ 
@@ -152,12 +152,12 @@ function move(up){
         listIndex += 1
     }
     else{
-        console.log(listIndex, maxIndex)
+        //console.log(listIndex, maxIndex)
     }
 
     if(listIndex <= maxIndex - 1){
-        console.log("list", listIndex)
-        console.log("max", maxIndex)
+        //console.log("list", listIndex)
+        //console.log("max", maxIndex)
         focusElement(listIndex, up)
     }
     
@@ -206,7 +206,7 @@ searchField.oninput = function(){
 }
 
 function fuzzyFindBookmarks(searchStr){
-    console.log(searchStr)
+    //console.log(searchStr)
 
     bookmarksList.forEach(bookmark => {
         let titleMatch = strMatch(searchStr, bookmark.title)
@@ -216,8 +216,8 @@ function fuzzyFindBookmarks(searchStr){
     bookmarksList.sort((a, b) => {
         return b.match - a.match
     })
-    console.log(bookmarksList[0].match)
-    console.log(bookmarksList)
+    //console.log(bookmarksList[0].match)
+    //console.log(bookmarksList)
 
     displayBookmarkList(bookmarksList)
 }
