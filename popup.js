@@ -17,18 +17,6 @@ async function setup(){
     displayBookmarkTree(bookmarksTree)
 }
 
-// Focus the sidebar
-browser.windows.getCurrent({populate: true}).then(windowInfo => {
-    console.log("setting focus test")
-    browser.windows.update(windowInfo.id, {focused: true});
-});
-
-// Get the current window
-browser.windows.getCurrent({populate: true}).then(windowInfo => {
-    // Focus the window
-    browser.windows.update(windowInfo.id, {focused: true});
-});
-
 // recursively add html elements for the bookmarks
 // todo display folders
 function displayBookmarkTree(bookmarks){
