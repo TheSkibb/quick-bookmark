@@ -55,12 +55,13 @@ function setThemeColors(theme){
 // recursively add html elements for the bookmarks
 // todo display folders
 function displayBookmarkTree(bookmarks){
+    console.log(bookmarks)
     bookmarks.children.forEach(bookmark => {
         if(bookmark.type == "folder"){
             displayBookmarkTree(bookmark)
         }
         else{
-            //console.log(bookmark.title)
+            //console.log(bookmark)
             bookmarksList.push(bookmark)
         }
     });
@@ -210,46 +211,66 @@ function fuzzyFindBookmarks(searchStr){
     //console.log(searchStr)
 
     bookmarksList.forEach(bookmark => {
-        let titleMatch = strMatch(searchStr, bookmark.title)
+        let titleMatch = strmatch(searchStr, bookmark.title)
         bookmark.match = titleMatch
     });
 
-    bookmarksList.sort((a, b) => {
+    let bookmarksListCopy = [...bookmarksList]
+
+    bookmarksListCopy
+        .sort((a, b) => {
         return b.match - a.match
     })
+
     //console.log(bookmarksList[0].match)
     //console.log(bookmarksList)
 
-    displayBookmarkList(bookmarksList)
+    displayBookmarkList(bookmarksListCopy)
 }
 
-function strMatch(a /*user query */, b /* string from list*/){
-    a = a.toLowerCase().replace(/\s+/g, "").split('')
-    b = b.toLowerCase().replace(/\s+/g, "").split('')
+function matchIsNull(b){
+    b.match != 0
+}
 
-    let matchScore = 0
-    let matchIndex = 0
+function strmatch(a, b){
+  a = a.toLowerCase().replace(/\s+/g, "").split('')
+  b = b.toLowerCase().replace(/\s+/g, "").split('')
 
-    for(let i=0; i<a.length; i++){
-        let char_a = a[i]
+  let startIndex = 0
+  let matchScore = 0
 
-        for(let j=0+matchIndex; j<b.length; j++){
-
-            let char_b = b[j]
-
-            if(char_a == char_b){
-                matchScore += a.length / (j+1)
-                //console.log("found match at index", j, char_a, char_b, a.length - (j+1), matchScore)
-                matchIndex = j
-                b.pop(j)
-                break
-            }
-        }
+  for(let i=0; i<a.length; i++){
+    let char_a = a[i]
+    if(char_a == " "){
+      continue
     }
+    let matchinfo = hasMatch(char_a, b, startIndex)
+    if(matchinfo.hasMatch == false){
+      return 0
+    }
+    startIndex = matchinfo.matchIndex
+    matchScore += matchinfo.matchScore
+  }
+  return matchScore
+}
 
-    matchScore = matchScore / b.length
+function hasMatch(a_char, b, startIndex){
+  let aMatch = false
+  let matchIndex = undefined
+  let matchScore = 0
+  for(let i=startIndex; i<b.length; i++){
+    let b_char = b[i]
 
-    //console.log(matchScore)
+    if(a_char == b_char){
+      aMatch = true
+      matchIndex = i
+      matchScore = 1000 - i
+    }
+  }
 
-    return matchScore
+  return {
+    hasMatch: aMatch,
+    matchIndex: matchIndex,
+    matchScore: matchScore
+  }
 }
