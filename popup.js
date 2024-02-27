@@ -15,6 +15,41 @@ async function setup(){
     bookmarksTree = bookmarkTreenodes[0].children[1]
 
     displayBookmarkTree(bookmarksTree)
+    const theme = await browser.theme.getCurrent();
+    setThemeColors(theme)
+}
+
+
+//basics for a theme integrated color-scheme 
+//not fully realized, as som values are hard-coded to fit my scheme 
+//and it has no considerations for potentially unset colors
+function setThemeColors(theme){
+
+    // dynamically create a stylesheet based on theme colors
+    if (theme.colors) {
+        document.body.style.backgroundColor = theme.colors.popup;
+        document.body.style.color = theme.colors.popup_text;
+        // Define the CSS styles you want to apply to the class
+        const focusedElementId = 'bookmarkElementFocused';
+        const searchInputId = "bookmarkSearchField"
+        const cssStyles = `
+            .${focusedElementId} {
+                background-color: ${theme.colors.popup_highlight};
+            }
+            #${searchInputId}{
+                background-color: ${theme.colors.input_background};
+                color: ${theme.colors.input_color};
+            }
+            a{
+                color: ${theme.colors.ntp_text};
+                text-decoration: none;
+            }
+        `;
+
+        const styleElement = document.createElement('style');
+        styleElement.textContent = cssStyles;
+        document.head.appendChild(styleElement);
+    }
 }
 
 // recursively add html elements for the bookmarks
