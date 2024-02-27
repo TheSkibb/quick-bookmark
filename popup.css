@@ -1,3 +1,16 @@
+body{
+    background-color: darkgray
+}
+
+a{ 
+    text-decoration: none;
+}
+
+#bookmarkSearchField{
+    color: white;
+    background-color: darkgray
+}
+
 #bookmarkList{
     font-size: 100%;
 }
@@ -9,5 +22,5 @@
 }
 
 .bookmarkElementFocused{
-    background-color: blue;
+    background-color: gray;
 }
