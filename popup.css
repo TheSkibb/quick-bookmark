@@ -18,7 +18,6 @@ a{
 .bookmarkElement{
     padding-top: 0.5vh;
     padding-bottom: 0.5vh;
-    border: 1px solid black;
 }
 
 .bookmarkElementFocused{
