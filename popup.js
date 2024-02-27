@@ -42,7 +42,6 @@ function setThemeColors(theme){
             }
             a{
                 color: ${theme.colors.ntp_text};
-                text-decoration: none;
             }
         `;
 
