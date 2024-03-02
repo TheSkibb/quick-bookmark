@@ -82,7 +82,7 @@ function addBookmarkElement(bookmark){
     const bookmarkList = document.getElementById("bookmarkList")
 
     let bookmarkElement = document.createElement("div")
-    bookmarkElement.innerHTML = '<a href="' + bookmark.url + '">' + bookmark.title + "</a>"
+    bookmarkElement.innerHTML = '<a href="' + bookmark.url + '">' + bookmark.title + "</a>" + " match " + bookmark.match
     bookmarkElement.classList.add("bookmarkElement")
 
     bookmarkList.appendChild(bookmarkElement)
@@ -217,9 +217,15 @@ function fuzzyFindBookmarks(searchStr){
 
     let bookmarksListCopy = [...bookmarksList]
 
+    console.log("bookmarks", bookmarksListCopy)
+    bookmarksListCopy = bookmarksListCopy.filter(element => {
+        console.log(element.match !== -1)
+        return element.match !== -1});
+    console.log("bookmarks filtered", bookmarksListCopy)
+
     bookmarksListCopy
         .sort((a, b) => {
-        return b.match - a.match
+        return  a.match - b.match
     })
 
     //console.log(bookmarksList[0].match)
@@ -233,44 +239,10 @@ function matchIsNull(b){
 }
 
 function strmatch(a, b){
-  a = a.toLowerCase().replace(/\s+/g, "").split('')
-  b = b.toLowerCase().replace(/\s+/g, "").split('')
+    a = a.toLowerCase().replace(/\s+/g, "")
+    b = b.toLowerCase().replace(/\s+/g, "")
 
-  let startIndex = 0
-  let matchScore = 0
-
-  for(let i=0; i<a.length; i++){
-    let char_a = a[i]
-    if(char_a == " "){
-      continue
-    }
-    let matchinfo = hasMatch(char_a, b, startIndex)
-    if(matchinfo.hasMatch == false){
-      return 0
-    }
-    startIndex = matchinfo.matchIndex
-    matchScore += matchinfo.matchScore
-  }
-  return matchScore
-}
-
-function hasMatch(a_char, b, startIndex){
-  let aMatch = false
-  let matchIndex = undefined
-  let matchScore = 0
-  for(let i=startIndex; i<b.length; i++){
-    let b_char = b[i]
-
-    if(a_char == b_char){
-      aMatch = true
-      matchIndex = i
-      matchScore = 1000 - i
-    }
-  }
-
-  return {
-    hasMatch: aMatch,
-    matchIndex: matchIndex,
-    matchScore: matchScore
-  }
+    let res = b.indexOf(a)
+    //console.log(res)
+    return(res)
 }
