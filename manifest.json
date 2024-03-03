@@ -1,28 +1,32 @@
 {
-  "description": "A plugin for faster navigation of bookmarks",
-  "homepage_url": "http://example.com",
-  "manifest_version": 2,
-  "name": "Quick Bookmark",
-  "permissions": [
-    "bookmarks"
-  ],
-  "browser_action": {
-    "default_title": "Quick Bookmark",
-    "default_popup": "popup.html"
-  },
-  "version": "1.0",
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "quick-bookmark@mozilla.org",
-      "strict_min_version": "58.0a1"
+    "description": "A plugin for faster navigation of bookmarks",
+    "homepage_url": "http://example.com",
+    "manifest_version": 2,
+    "name": "Quick Bookmark",
+    "permissions": [
+        "bookmarks"
+    ],
+
+    "browser_action": {
+        "default_title": "Quick Bookmark",
+        "default_popup": "popup.html",
+        "default_icon":{
+            "16": "assets/book.png"
+        }
+    },
+    "version": "1.0",
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "quick-bookmark@mozilla.org",
+            "strict_min_version": "58.0a1"
+        }
+    },
+    "commands": {
+        "_execute_browser_action": {
+            "suggested_key": {
+                "default": "Alt+M",
+                "linux": "Alt+M"
+            }
+        }
     }
-  },
-  "commands": {
-    "_execute_browser_action": {
-      "suggested_key": {
-        "default": "Alt+M",
-        "linux": "Alt+M"
-      }
-    }
-  }
 }
