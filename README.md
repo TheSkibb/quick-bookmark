@@ -1,5 +1,4 @@
 # Quick bookmark
-**Notice, this project is currently under development.**
 
 Quick bookmark is a plugin for fast retrieval and navigation of bookmarks.
 
