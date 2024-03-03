@@ -82,6 +82,7 @@ function addBookmarkElement(bookmark){
     const bookmarkList = document.getElementById("bookmarkList")
 
     let bookmarkElement = document.createElement("div")
+    console.log(bookmark.match)
     bookmarkElement.innerHTML = '<a href="' + bookmark.url + '">' + bookmark.title + "</a>" + " match " + bookmark.match
     bookmarkElement.classList.add("bookmarkElement")
 
@@ -212,6 +213,7 @@ function fuzzyFindBookmarks(searchStr){
 
     bookmarksList.forEach(bookmark => {
         let titleMatch = strmatch(searchStr, bookmark.title)
+        console.log(titleMatch)
         bookmark.match = titleMatch
     });
 
@@ -220,12 +222,13 @@ function fuzzyFindBookmarks(searchStr){
     console.log("bookmarks", bookmarksListCopy)
     bookmarksListCopy = bookmarksListCopy.filter(element => {
         console.log(element.match !== -1)
-        return element.match !== -1});
+        return element.match !== 0});
+
     console.log("bookmarks filtered", bookmarksListCopy)
 
     bookmarksListCopy
         .sort((a, b) => {
-        return  a.match - b.match
+            return  b.match - a.match
     })
 
     //console.log(bookmarksList[0].match)
@@ -239,10 +242,62 @@ function matchIsNull(b){
 }
 
 function strmatch(a, b){
-    a = a.toLowerCase().replace(/\s+/g, "")
-    b = b.toLowerCase().replace(/\s+/g, "")
+    console.log("test")
+    a = a.toLowerCase().split('')
+    b = b.toLowerCase().split('')
 
-    let res = b.indexOf(a)
-    //console.log(res)
-    return(res)
+    console.log(a)
+    console.log(b)
+
+    let matchArrays = []
+
+    //find all matches
+    for(let i = 0; i < a.length; i++){
+
+        let char_a = a[i]
+
+        //skip spaces
+        if(char_a == " "){
+            continue
+        }
+
+        let matches = {
+            letter: char_a,
+            indexes: []
+        }
+
+        for(let k = 0; k < b.length; k++){
+            let char_b = b[k]
+            if(char_a == char_b){
+                matches.indexes.push(k)
+            }
+        }
+
+        if(matches.indexes.length == 0){
+            console.log(char_a)
+            /*
+            return{
+                matchScore: 0
+            }
+            */
+            return 0
+        }
+    matchArrays.push(matches)
+    }
+    console.log(matchArrays)
+
+    //generate score
+    let matchScore = 0
+    for(let j = 0; j < matchArrays.length; j++){
+        matchScore += matchArrays[j].indexes.length
+    }
+
+    matchScore = matchScore / b.length
+
+    /*
+    return {
+        matchScore: matchScore
+    }
+    */
+    return matchScore
 }
