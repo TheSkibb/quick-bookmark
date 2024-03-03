@@ -1,14 +1,22 @@
+:root{
+    --grey: #545454;
+    --lightgrey: #8c8c8c;
+    --darkgrey: #333333;
+}
+
 body{
-    background-color: darkgray
+    background-color: var(--grey)
 }
 
 a{ 
     text-decoration: none;
+    color: whitesmoke;
+    font-weight: bold;
 }
 
 #bookmarkSearchField{
     color: white;
-    background-color: darkgray
+    background-color: var(--grey)
 }
 
 #bookmarkList{
@@ -21,5 +29,5 @@ a{
 }
 
 .bookmarkElementFocused{
-    background-color: gray;
+    background-color: var(--darkgrey);
 }
