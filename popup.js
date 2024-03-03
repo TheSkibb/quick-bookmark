@@ -252,6 +252,7 @@ function strmatch(a, b){
     console.log(b)
 
     let matchArrays = []
+    let startIndex = []
 
     //find all matches
     for(let i = 0; i < a.length; i++){
@@ -272,6 +273,7 @@ function strmatch(a, b){
             let char_b = b[k]
             if(char_a == char_b){
                 matches.indexes.push(k)
+                startIndex = k
             }
         }
 
