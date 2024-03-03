@@ -85,7 +85,7 @@ function addBookmarkElement(bookmark){
     console.log(bookmark.match)
     bookmarkElement.innerHTML = 
         '<a href="' + bookmark.url + '">' + 
-        bookmark.title + "</a>" + " <i>(match " + bookmark.match + "</i>"
+        bookmark.title + "</a>" + " <i>(match " + bookmark.match + ")</i>"
     bookmarkElement.classList.add("bookmarkElement")
 
     bookmarkList.appendChild(bookmarkElement)
