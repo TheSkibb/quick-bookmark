@@ -112,6 +112,18 @@ addEventListener("keypress", (event) => {
         if(event.key == "Enter"){
             //unfocus the search bar
             searchField.blur()
+            console.log(listIndex == undefined)
+
+            // if user is at start of list move to the first element
+            // if user has moved down the list open the selected bookmark
+            if(listIndex == undefined){
+                move(false)
+            }
+            else{
+                openselected("Enter")
+                window.close()
+            }
+
             move(false)
         }
         //todo: fuzzy find through the bookmarks
@@ -146,6 +158,15 @@ addEventListener("keyup", (event) => {
         move(false)
     }
 })
+
+//prevent scrolling with arrow keys
+document.onkeydown = function(evt) {
+    evt = evt || window.event;
+    var keyCode = evt.keyCode;
+    if (keyCode >= 37 && keyCode <= 40) {
+        return false;
+    }
+};
 
 /*
  * movement
