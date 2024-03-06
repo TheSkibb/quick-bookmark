@@ -311,7 +311,7 @@ function strmatch(a, b){
     matchArrays.push(matches)
     }
 
-    // build matchscor
+    // build matchscore
     let matchScore = 0
     for(let j = 0; j < matchArrays.length; j++){
         matchScore += matchArrays[j].indexes.length
