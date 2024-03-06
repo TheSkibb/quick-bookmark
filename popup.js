@@ -8,7 +8,6 @@ var listIndex = undefined //index for currently focused bookmark
 
 
 async function setup(){
-    console.log(browser.action)
     window.focus()
     const bookmarkTreenodes = await browser.bookmarks.getTree()
 
@@ -82,7 +81,6 @@ function addBookmarkElement(bookmark){
     const bookmarkList = document.getElementById("bookmarkList")
 
     let bookmarkElement = document.createElement("div")
-    console.log(bookmark.match)
     bookmarkElement.innerHTML = 
         '<a href="' + bookmark.url + '">' + 
         bookmark.title + "</a>" + " <i>(match " + bookmark.match + ")</i>"
@@ -136,6 +134,19 @@ addEventListener("keypress", (event) => {
     }
 });
 
+// keyup for handling arrows
+addEventListener("keyup", (event) => {
+
+    console.log(event.key)
+
+    if(event.key == "ArrowUp"){
+        move(true)
+    }
+    else if(event.key == "ArrowDown"){
+        move(false)
+    }
+})
+
 /*
  * movement
 */
@@ -153,7 +164,6 @@ function move(up){
         listIndex -= 1
     }
     else if(!up && listIndex < maxIndex -1){ 
-        console.log("movin down")
         listIndex += 1
     }
     else{
@@ -215,18 +225,16 @@ function fuzzyFindBookmarks(searchStr){
 
     bookmarksList.forEach(bookmark => {
         let titleMatch = strmatch(searchStr, bookmark.title)
-        console.log(titleMatch)
         bookmark.match = titleMatch
     });
 
     let bookmarksListCopy = [...bookmarksList]
 
-    console.log("bookmarks", bookmarksListCopy)
+    //console.log("bookmarks", bookmarksListCopy)
     bookmarksListCopy = bookmarksListCopy.filter(element => {
-        console.log(element.match !== -1)
         return element.match !== 0});
 
-    console.log("bookmarks filtered", bookmarksListCopy)
+    //console.log("bookmarks filtered", bookmarksListCopy)
 
     bookmarksListCopy
         .sort((a, b) => {
@@ -244,12 +252,11 @@ function matchIsNull(b){
 }
 
 function strmatch(a, b){
-    console.log("test")
     a = a.toLowerCase().split('')
     b = b.toLowerCase().split('')
 
-    console.log(a)
-    console.log(b)
+    //console.log(a)
+    //console.log(b)
 
     let matchArrays = []
     let startIndex = []
@@ -278,19 +285,12 @@ function strmatch(a, b){
         }
 
         if(matches.indexes.length == 0){
-            console.log(char_a)
-            /*
-            return{
-                matchScore: 0
-            }
-            */
             return 0
         }
     matchArrays.push(matches)
     }
-    console.log(matchArrays)
 
-    //generate score
+    // build matchscor
     let matchScore = 0
     for(let j = 0; j < matchArrays.length; j++){
         matchScore += matchArrays[j].indexes.length
@@ -298,10 +298,5 @@ function strmatch(a, b){
 
     matchScore = matchScore / b.length
 
-    /*
-    return {
-        matchScore: matchScore
-    }
-    */
     return matchScore
 }
