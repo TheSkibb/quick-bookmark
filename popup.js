@@ -20,37 +20,6 @@ async function setup(){
 }
 
 
-//basics for a theme integrated color-scheme 
-//not fully realized, as som values are hard-coded to fit my scheme 
-//and it has no considerations for potentially unset colors
-function setThemeColors(theme){
-
-    // dynamically create a stylesheet based on theme colors
-    if (theme.colors) {
-        document.body.style.backgroundColor = theme.colors.popup;
-        document.body.style.color = theme.colors.popup_text;
-        // Define the CSS styles you want to apply to the class
-        const focusedElementId = 'bookmarkElementFocused';
-        const searchInputId = "bookmarkSearchField"
-        const cssStyles = `
-            .${focusedElementId} {
-                background-color: ${theme.colors.popup_highlight};
-            }
-            #${searchInputId}{
-                background-color: ${theme.colors.input_background};
-                color: ${theme.colors.input_color};
-            }
-            a{
-                color: ${theme.colors.ntp_text};
-            }
-        `;
-
-        const styleElement = document.createElement('style');
-        styleElement.textContent = cssStyles;
-        document.head.appendChild(styleElement);
-    }
-}
-
 // recursively add html elements for the bookmarks
 // todo display folders
 function displayBookmarkTree(bookmarks){
@@ -61,6 +30,7 @@ function displayBookmarkTree(bookmarks){
         }
         else{
             //console.log(bookmark)
+            bookmark.parentName = bookmarks.title
             bookmarksList.push(bookmark)
         }
     });
@@ -83,7 +53,9 @@ function addBookmarkElement(bookmark){
     let bookmarkElement = document.createElement("div")
     bookmarkElement.innerHTML = 
         '<a href="' + bookmark.url + '">' + 
-        bookmark.title + "</a>" + " <i>(match " + bookmark.match + ")</i>"
+        bookmark.parentName + "/" +
+        bookmark.title + "</a>" 
+        + " <i>(match " + bookmark.match + ")</i>"
     bookmarkElement.classList.add("bookmarkElement")
 
     bookmarkList.appendChild(bookmarkElement)
@@ -287,7 +259,7 @@ function strmatch(a, b){
         let char_a = a[i]
 
         //skip spaces
-        if(char_a == " "){
+        if(char_a == " " || char_a  == "/"){
             continue
         }
 
@@ -319,3 +291,39 @@ function strmatch(a, b){
 
     return matchScore
 }
+
+/* 
+ * theme
+*/
+
+//basics for a theme integrated color-scheme 
+//not fully realized, as som values are hard-coded to fit my scheme 
+//and it has no considerations for potentially unset colors
+function setThemeColors(theme){
+
+    // dynamically create a stylesheet based on theme colors
+    if (theme.colors) {
+        document.body.style.backgroundColor = theme.colors.popup;
+        document.body.style.color = theme.colors.popup_text;
+        // Define the CSS styles you want to apply to the class
+        const focusedElementId = 'bookmarkElementFocused';
+        const searchInputId = "bookmarkSearchField"
+        const cssStyles = `
+            .${focusedElementId} {
+                background-color: ${theme.colors.popup_highlight};
+            }
+            #${searchInputId}{
+                background-color: ${theme.colors.input_background};
+                color: ${theme.colors.input_color};
+            }
+            a{
+                color: ${theme.colors.ntp_text};
+            }
+        `;
+
+        const styleElement = document.createElement('style');
+        styleElement.textContent = cssStyles;
+        document.head.appendChild(styleElement);
+    }
+}
+
