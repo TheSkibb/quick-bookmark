@@ -24,13 +24,16 @@ async function setup(){
 // todo display folders
 function displayBookmarkTree(bookmarks){
     console.log(bookmarks)
+
     bookmarks.children.forEach(bookmark => {
         if(bookmark.type == "folder"){
             displayBookmarkTree(bookmark)
         }
         else{
             //console.log(bookmark)
-            bookmark.parentName = bookmarks.title
+            if(bookmarks.title != "Bookmarks Toolbar"){
+                bookmark.parentName = bookmarks.title
+            }
             bookmarksList.push(bookmark)
         }
     });
@@ -213,6 +216,13 @@ searchField.oninput = function(){
     }
 }
 
+class Result {
+    constructor(score, matches){
+        this.score = score
+        this.matches = matches
+    }
+}
+
 function fuzzyFindBookmarks(searchStr){
     //console.log(searchStr)
 
@@ -245,51 +255,57 @@ function matchIsNull(b){
 }
 
 function strmatch(a, b){
-    a = a.toLowerCase().split('')
-    b = b.toLowerCase().split('')
+    a = a.split("")
+    b = b.split("")
 
-    //console.log(a)
-    //console.log(b)
+    let len_a = a.length
+    let len_b = b.length
 
-    let matchArrays = []
 
-    //find all matches
-    for(let i = 0; i < a.length; i++){
+    if(len_a == 0 || len_b == 0){
+        return Result(0, 0, 0)
+    }
 
-        let char_a = a[i]
+    let matches = []
+    let startIndex = 0
 
-        //skip spaces
-        if(char_a == " " || char_a  == "/"){
+    // step 1 forwards scan
+    for(let i = 0; i < len_a; i++){
+
+        if(a[i] == " "){
             continue
         }
 
-        let matches = {
-            letter: char_a,
-            indexes: []
-        }
+        let len_before = matches.length
 
-        for(let k = 0; k < b.length; k++){
-            let char_b = b[k]
-            if(char_a == char_b){
-                matches.indexes.push(k)
+        for(let j = startIndex; j < len_b; j++){
+            if(a[i] == b[j]){
+                matches.push({letter: b[j], index: j})
+                startIndex = j + 1
+                break
             }
         }
 
-        if(matches.indexes.length == 0){
-            return 0
+        console.log(matches)
+
+        if(len_before == matches.length){
+            console.log("no match for", a[i])
+            return new Result(0, 0, 0)
         }
-    matchArrays.push(matches)
+
     }
 
-    // build matchscore
-    let matchScore = 0
-    for(let j = 0; j < matchArrays.length; j++){
-        matchScore += matchArrays[j].indexes.length
+    let score = 0
+
+    //create score
+    for(let i = 0; i < matches.length; i++){
+        console.log(matches[i])
+        score += b.length - matches[i].index
     }
 
-    matchScore = matchScore / b.length
+    score = score / b.length
 
-    return matchScore
+    return new Result(score, matches)
 }
 
 /* 
