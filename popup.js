@@ -2,42 +2,57 @@
     * setup (needs to be inside async funtion to use browser api)
 */
 
-var bookmarksTree //global bookmarks variable
-var bookmarksList = []//
+
+var bookmarksList = []
+var bookmarksCount = 0
 var listIndex = undefined //index for currently focused bookmark
 
 
 async function setup(){
-    window.focus()
-    const bookmarkTreenodes = await browser.bookmarks.getTree()
-
-    //we are only interested in toolbar bookmarks (may change)
-    bookmarksTree = bookmarkTreenodes[0].children[1]
-
-    displayBookmarkTree(bookmarksTree)
     const theme = await browser.theme.getCurrent();
     setThemeColors(theme)
+
+    //we are only interested in toolbar bookmarks (may change)
+    const bookmarkTreenodes = await browser.bookmarks.getTree()
+    let bookmarksTree = bookmarkTreenodes[0].children[1]
+
+    //adds the bookmarks from the bookmarksTree into bookmarksList
+    createBookmarklistFromTree(bookmarksTree)
+
+    console.log(bookmarksList)
+    displayBookmarkList(bookmarksList)
 }
 
 
-// recursively add html elements for the bookmarks
-// todo display folders
-function displayBookmarkTree(bookmarks){
+// takes in a tree of bookmarks, and creates a list
+// add attribute parentFolder, which is used when 
+// displaying and searching the list
+function createBookmarklistFromTree(bookmarks, path){
     console.log(bookmarks)
+    if(path == undefined){
+        path = ""
+    }
+    console.log(path)
 
     bookmarks.children.forEach(bookmark => {
         if(bookmark.type == "folder"){
-            displayBookmarkTree(bookmark)
+            createBookmarklistFromTree(bookmark, path + bookmark.title + "/")
         }
         else{
-            //console.log(bookmark)
-            if(bookmarks.title != "Bookmarks Toolbar"){
-                bookmark.parentName = bookmarks.title
-            }
+            bookmarksCount += 1
+
+            /*
+             * add special attributes for bookmark
+             */
+
+            bookmark.path = path
+            //used to sort the list back to original position without 
+            //having to re-flatten the tree
+            bookmark.initialPos = bookmarksCount
+
             bookmarksList.push(bookmark)
         }
     });
-    displayBookmarkList(bookmarksList)
 }
 
 // display bookmarks from list
@@ -56,7 +71,7 @@ function addBookmarkElement(bookmark){
     let bookmarkElement = document.createElement("div")
     bookmarkElement.innerHTML = 
         '<a href="' + bookmark.url + '">' + 
-        bookmark.parentName + "/" +
+        bookmark.path + "" +
         bookmark.title + "</a>" 
         + " <i>(match " + bookmark.match + ")</i>"
     bookmarkElement.classList.add("bookmarkElement")
