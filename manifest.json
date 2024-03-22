@@ -14,6 +14,10 @@
             "16": "assets/book.png"
         }
     },
+    "sidebar_action": {
+        "default_title": "Quick Bookmark",
+        "default_panel": "popup.html"
+    },
     "version": "1.0",
     "browser_specific_settings": {
         "gecko": {
@@ -26,6 +30,12 @@
             "suggested_key": {
                 "default": "Alt+M",
                 "linux": "Alt+M"
+            }
+        },
+        "_execute_sidebar_action": {
+            "suggested_key": {
+                "default": "Alt+N",
+                "linux": "Alt+N"
             }
         }
     }
