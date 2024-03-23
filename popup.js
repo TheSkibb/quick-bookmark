@@ -86,6 +86,10 @@ function generateBookmarkName(bookmark){
     }
     // bookmark with highlight for match-positions
     else{
+        if(bookmark.matchResult.score == 0){
+            return ""
+        }
+
         let bookmarkDisplayName = (bookmark.path + bookmark.title).split("")
 
         let startTag = "<b>"
