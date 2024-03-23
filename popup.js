@@ -19,7 +19,6 @@ async function setup(){
     //adds the bookmarks from the bookmarksTree into bookmarksList
     createBookmarklistFromTree(bookmarksTree)
 
-    console.log(bookmarksList)
     displayBookmarkList(bookmarksList)
 }
 
@@ -28,11 +27,9 @@ async function setup(){
 // add attribute parentFolder, which is used when 
 // displaying and searching the list
 function createBookmarklistFromTree(bookmarks, path){
-    console.log(bookmarks)
     if(path == undefined){
         path = ""
     }
-    console.log(path)
 
     bookmarks.children.forEach(bookmark => {
         if(bookmark.type == "folder"){
@@ -124,12 +121,11 @@ addEventListener("keypress", (event) => {
     //if the search field is focused, the keyevents should be ignored
     let searchField = document.getElementById("bookmarkSearchField")
     if(document.activeElement === searchField){
-        console.log("search bar has focus, returning")
+        //console.log("search bar has focus, returning")
 
         if(event.key == "Enter"){
             //unfocus the search bar
             searchField.blur()
-            console.log(listIndex == undefined)
 
             // if user is at start of list move to the first element
             // if user has moved down the list open the selected bookmark
@@ -165,8 +161,6 @@ addEventListener("keypress", (event) => {
 
 // keyup for handling arrows
 addEventListener("keyup", (event) => {
-
-    console.log(event.key)
 
     if(event.key == "ArrowUp"){
         move(true)
@@ -251,8 +245,6 @@ const searchField = document.getElementById("bookmarkSearchField")
 searchField.oninput = function(){
     //if the search query is empty, display the original bookmark list
     if(searchField.value == ""){
-
-        console.log("searchField empty")
 
         bookmarksList.forEach((e) => {
             e.matchResult = undefined
