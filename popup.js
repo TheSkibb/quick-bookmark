@@ -96,8 +96,6 @@ function generateBookmarkName(bookmark){
                 startTag + bookmark.matchResult.matches[i].letter + closeTag
         }
 
-        console.log(bookmarkDisplayName)
-
         return bookmarkDisplayName.join("") + 
         "</a>" +
         " <i>(match " + bookmark.matchResult.score + ")</i>"
@@ -249,6 +247,20 @@ const searchField = document.getElementById("bookmarkSearchField")
 searchField.oninput = function(){
     //if the search query is empty, display the original bookmark list
     if(searchField.value == ""){
+
+        console.log("searchField empty")
+
+        bookmarksList.forEach((e) => {
+            e.matchResult = undefined
+            //console.log(e)
+        })
+
+        // sort bookmarks to original order
+        bookmarksList = bookmarksList.sort(function(a, b){
+            // console.log(b.matchResult.score - a.matchResult.score)
+            return a.initialPos - b.initialPos
+        })
+
         displayBookmarkList(bookmarksList)
     }
     else{
