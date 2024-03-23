@@ -71,12 +71,37 @@ function addBookmarkElement(bookmark){
     let bookmarkElement = document.createElement("div")
     bookmarkElement.innerHTML = 
         '<a href="' + bookmark.url + '">' + 
-        bookmark.path + "" +
-        bookmark.title + "</a>" 
-        + " <i>(match " + bookmark.match + ")</i>"
+        generateBookmarkName(bookmark)
+
     bookmarkElement.classList.add("bookmarkElement")
 
     bookmarkList.appendChild(bookmarkElement)
+}
+
+function generateBookmarkName(bookmark){
+    if(bookmark.matchResult == undefined){
+
+        return bookmark.path + bookmark.title +
+        "</a>"
+    }
+    // bookmark with highlight for match-positions
+    else{
+        let bookmarkDisplayName = (bookmark.path + bookmark.title).split("")
+
+        let startTag = "<b>"
+        let closeTag = "</b>"
+
+        for(let i = 0; i < bookmark.matchResult.matches.length; i++){
+            bookmarkDisplayName[bookmark.matchResult.matches[i].index] = 
+                startTag + bookmark.matchResult.matches[i].letter + closeTag
+        }
+
+        console.log(bookmarkDisplayName)
+
+        return bookmarkDisplayName.join("") + 
+        "</a>" +
+        " <i>(match " + bookmark.matchResult.score + ")</i>"
+    }
 }
 
 // empties list of bookmarks in bookmarkList element
@@ -239,30 +264,20 @@ class Result {
 }
 
 function fuzzyFindBookmarks(searchStr){
-    //console.log(searchStr)
 
     bookmarksList.forEach(bookmark => {
-        let titleMatch = strmatch(searchStr, bookmark.title)
-        bookmark.match = titleMatch
+        let titleMatch = strmatch(searchStr, bookmark.path + bookmark.title)
+        // console.log(bookmark.title, titleMatch.score)
+        bookmark.matchResult = titleMatch
     });
 
-    let bookmarksListCopy = [...bookmarksList]
-
-    //console.log("bookmarks", bookmarksListCopy)
-    bookmarksListCopy = bookmarksListCopy.filter(element => {
-        return element.match !== 0});
-
-    //console.log("bookmarks filtered", bookmarksListCopy)
-
-    bookmarksListCopy
-        .sort((a, b) => {
-            return  b.match - a.match
+    bookmarksList = bookmarksList.sort(function(a, b){
+        // console.log(b.matchResult.score - a.matchResult.score)
+        return b.matchResult.score - a.matchResult.score
     })
 
-    //console.log(bookmarksList[0].match)
-    //console.log(bookmarksList)
+    displayBookmarkList(bookmarksList)
 
-    displayBookmarkList(bookmarksListCopy)
 }
 
 function matchIsNull(b){
@@ -270,8 +285,8 @@ function matchIsNull(b){
 }
 
 function strmatch(a, b){
-    a = a.split("")
-    b = b.split("")
+    a = a.toLowerCase().split("")
+    b = b.toLowerCase().split("")
 
     let len_a = a.length
     let len_b = b.length
@@ -301,10 +316,7 @@ function strmatch(a, b){
             }
         }
 
-        console.log(matches)
-
         if(len_before == matches.length){
-            console.log("no match for", a[i])
             return new Result(0, 0, 0)
         }
 
@@ -314,7 +326,6 @@ function strmatch(a, b){
 
     //create score
     for(let i = 0; i < matches.length; i++){
-        console.log(matches[i])
         score += b.length - matches[i].index
     }
 
