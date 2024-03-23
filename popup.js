@@ -252,12 +252,10 @@ searchField.oninput = function(){
 
         bookmarksList.forEach((e) => {
             e.matchResult = undefined
-            //console.log(e)
         })
 
         // sort bookmarks to original order
         bookmarksList = bookmarksList.sort(function(a, b){
-            // console.log(b.matchResult.score - a.matchResult.score)
             return a.initialPos - b.initialPos
         })
 
