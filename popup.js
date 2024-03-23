@@ -2,69 +2,54 @@
     * setup (needs to be inside async funtion to use browser api)
 */
 
-var bookmarksTree //global bookmarks variable
-var bookmarksList = []//
+
+var bookmarksList = []
+var bookmarksCount = 0
 var listIndex = undefined //index for currently focused bookmark
 
 
 async function setup(){
-    window.focus()
-    const bookmarkTreenodes = await browser.bookmarks.getTree()
-
-    //we are only interested in toolbar bookmarks (may change)
-    bookmarksTree = bookmarkTreenodes[0].children[1]
-
-    displayBookmarkTree(bookmarksTree)
     const theme = await browser.theme.getCurrent();
     setThemeColors(theme)
+
+    //we are only interested in toolbar bookmarks (may change)
+    const bookmarkTreenodes = await browser.bookmarks.getTree()
+    let bookmarksTree = bookmarkTreenodes[0].children[1]
+
+    //adds the bookmarks from the bookmarksTree into bookmarksList
+    createBookmarklistFromTree(bookmarksTree)
+
+    displayBookmarkList(bookmarksList)
 }
 
 
-//basics for a theme integrated color-scheme 
-//not fully realized, as som values are hard-coded to fit my scheme 
-//and it has no considerations for potentially unset colors
-function setThemeColors(theme){
-
-    // dynamically create a stylesheet based on theme colors
-    if (theme.colors) {
-        document.body.style.backgroundColor = theme.colors.popup;
-        document.body.style.color = theme.colors.popup_text;
-        // Define the CSS styles you want to apply to the class
-        const focusedElementId = 'bookmarkElementFocused';
-        const searchInputId = "bookmarkSearchField"
-        const cssStyles = `
-            .${focusedElementId} {
-                background-color: ${theme.colors.popup_highlight};
-            }
-            #${searchInputId}{
-                background-color: ${theme.colors.input_background};
-                color: ${theme.colors.input_color};
-            }
-            a{
-                color: ${theme.colors.ntp_text};
-            }
-        `;
-
-        const styleElement = document.createElement('style');
-        styleElement.textContent = cssStyles;
-        document.head.appendChild(styleElement);
+// takes in a tree of bookmarks, and creates a list
+// add attribute parentFolder, which is used when 
+// displaying and searching the list
+function createBookmarklistFromTree(bookmarks, path){
+    if(path == undefined){
+        path = ""
     }
-}
 
-// recursively add html elements for the bookmarks
-// todo display folders
-function displayBookmarkTree(bookmarks){
-    console.log(bookmarks)
     bookmarks.children.forEach(bookmark => {
         if(bookmark.type == "folder"){
-            displayBookmarkTree(bookmark)
+            createBookmarklistFromTree(bookmark, path + bookmark.title + "/")
         }
         else{
-            //console.log(bookmark)
+            bookmarksCount += 1
+
+            /*
+             * add special attributes for bookmark
+             */
+
+            bookmark.path = path
+            //used to sort the list back to original position without 
+            //having to re-flatten the tree
+            bookmark.initialPos = bookmarksCount
+
             bookmarksList.push(bookmark)
         }
     });
-    displayBookmarkList(bookmarksList)
 }
 
 // display bookmarks from list
@@ -83,10 +68,39 @@ function addBookmarkElement(bookmark){
     let bookmarkElement = document.createElement("div")
     bookmarkElement.innerHTML = 
         '<a href="' + bookmark.url + '">' + 
-        bookmark.title + "</a>" + " <i>(match " + bookmark.match + ")</i>"
+        generateBookmarkName(bookmark)
+
     bookmarkElement.classList.add("bookmarkElement")
 
     bookmarkList.appendChild(bookmarkElement)
+}
+
+function generateBookmarkName(bookmark){
+    if(bookmark.matchResult == undefined){
+
+        return bookmark.path + bookmark.title +
+        "</a>"
+    }
+    // bookmark with highlight for match-positions
+    else{
+        if(bookmark.matchResult.score == 0){
+            return ""
+        }
+
+        let bookmarkDisplayName = (bookmark.path + bookmark.title).split("")
+
+        let startTag = "<b>"
+        let closeTag = "</b>"
+
+        for(let i = 0; i < bookmark.matchResult.matches.length; i++){
+            bookmarkDisplayName[bookmark.matchResult.matches[i].index] = 
+                startTag + bookmark.matchResult.matches[i].letter + closeTag
+        }
+
+        return bookmarkDisplayName.join("") + 
+        "</a>" +
+        " <i>(match " + bookmark.matchResult.score + ")</i>"
+    }
 }
 
 // empties list of bookmarks in bookmarkList element
@@ -107,12 +121,11 @@ addEventListener("keypress", (event) => {
     //if the search field is focused, the keyevents should be ignored
     let searchField = document.getElementById("bookmarkSearchField")
     if(document.activeElement === searchField){
-        console.log("search bar has focus, returning")
+        //console.log("search bar has focus, returning")
 
         if(event.key == "Enter"){
             //unfocus the search bar
             searchField.blur()
-            console.log(listIndex == undefined)
 
             // if user is at start of list move to the first element
             // if user has moved down the list open the selected bookmark
@@ -148,8 +161,6 @@ addEventListener("keypress", (event) => {
 
 // keyup for handling arrows
 addEventListener("keyup", (event) => {
-
-    console.log(event.key)
 
     if(event.key == "ArrowUp"){
         move(true)
@@ -234,6 +245,16 @@ const searchField = document.getElementById("bookmarkSearchField")
 searchField.oninput = function(){
     //if the search query is empty, display the original bookmark list
     if(searchField.value == ""){
+
+        bookmarksList.forEach((e) => {
+            e.matchResult = undefined
+        })
+
+        // sort bookmarks to original order
+        bookmarksList = bookmarksList.sort(function(a, b){
+            return a.initialPos - b.initialPos
+        })
+
         displayBookmarkList(bookmarksList)
     }
     else{
@@ -241,31 +262,28 @@ searchField.oninput = function(){
     }
 }
 
+class Result {
+    constructor(score, matches){
+        this.score = score
+        this.matches = matches
+    }
+}
+
 function fuzzyFindBookmarks(searchStr){
-    //console.log(searchStr)
 
     bookmarksList.forEach(bookmark => {
-        let titleMatch = strmatch(searchStr, bookmark.title)
-        bookmark.match = titleMatch
+        let titleMatch = strmatch(searchStr, bookmark.path + bookmark.title)
+        // console.log(bookmark.title, titleMatch.score)
+        bookmark.matchResult = titleMatch
     });
 
-    let bookmarksListCopy = [...bookmarksList]
-
-    //console.log("bookmarks", bookmarksListCopy)
-    bookmarksListCopy = bookmarksListCopy.filter(element => {
-        return element.match !== 0});
-
-    //console.log("bookmarks filtered", bookmarksListCopy)
-
-    bookmarksListCopy
-        .sort((a, b) => {
-            return  b.match - a.match
+    bookmarksList = bookmarksList.sort(function(a, b){
+        // console.log(b.matchResult.score - a.matchResult.score)
+        return b.matchResult.score - a.matchResult.score
     })
 
-    //console.log(bookmarksList[0].match)
-    //console.log(bookmarksList)
+    displayBookmarkList(bookmarksList)
 
-    displayBookmarkList(bookmarksListCopy)
 }
 
 function matchIsNull(b){
@@ -273,49 +291,87 @@ function matchIsNull(b){
 }
 
 function strmatch(a, b){
-    a = a.toLowerCase().split('')
-    b = b.toLowerCase().split('')
+    a = a.toLowerCase().split("")
+    b = b.toLowerCase().split("")
 
-    //console.log(a)
-    //console.log(b)
+    let len_a = a.length
+    let len_b = b.length
 
-    let matchArrays = []
 
-    //find all matches
-    for(let i = 0; i < a.length; i++){
+    if(len_a == 0 || len_b == 0){
+        return Result(0, 0, 0)
+    }
 
-        let char_a = a[i]
+    let matches = []
+    let startIndex = 0
 
-        //skip spaces
-        if(char_a == " "){
+    // step 1 forwards scan
+    for(let i = 0; i < len_a; i++){
+
+        if(a[i] == " "){
             continue
         }
 
-        let matches = {
-            letter: char_a,
-            indexes: []
-        }
+        let len_before = matches.length
 
-        for(let k = 0; k < b.length; k++){
-            let char_b = b[k]
-            if(char_a == char_b){
-                matches.indexes.push(k)
+        for(let j = startIndex; j < len_b; j++){
+            if(a[i] == b[j]){
+                matches.push({letter: b[j], index: j})
+                startIndex = j + 1
+                break
             }
         }
 
-        if(matches.indexes.length == 0){
-            return 0
+        if(len_before == matches.length){
+            return new Result(0, 0, 0)
         }
-    matchArrays.push(matches)
+
     }
 
-    // build matchscore
-    let matchScore = 0
-    for(let j = 0; j < matchArrays.length; j++){
-        matchScore += matchArrays[j].indexes.length
+    let score = 0
+
+    //create score
+    for(let i = 0; i < matches.length; i++){
+        score += b.length - matches[i].index
     }
 
-    matchScore = matchScore / b.length
+    score = score / b.length
 
-    return matchScore
+    return new Result(score, matches)
 }
+
+/* 
+ * theme
+*/
+
+//basics for a theme integrated color-scheme 
+//not fully realized, as som values are hard-coded to fit my scheme 
+//and it has no considerations for potentially unset colors
+function setThemeColors(theme){
+
+    // dynamically create a stylesheet based on theme colors
+    if (theme.colors) {
+        document.body.style.backgroundColor = theme.colors.popup;
+        document.body.style.color = theme.colors.popup_text;
+        // Define the CSS styles you want to apply to the class
+        const focusedElementId = 'bookmarkElementFocused';
+        const searchInputId = "bookmarkSearchField"
+        const cssStyles = `
+            .${focusedElementId} {
+                background-color: ${theme.colors.popup_highlight};
+            }
+            #${searchInputId}{
+                background-color: ${theme.colors.input_background};
+                color: ${theme.colors.input_color};
+            }
+            a{
+                color: ${theme.colors.ntp_text};
+            }
+        `;
+
+        const styleElement = document.createElement('style');
+        styleElement.textContent = cssStyles;
+        document.head.appendChild(styleElement);
+    }
+}
+
