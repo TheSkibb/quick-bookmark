@@ -11,17 +11,16 @@
         "default_title": "Quick Bookmark",
         "default_popup": "popup.html",
         "default_icon":{
-            "16": "assets/book.png"
         }
     },
     "sidebar_action": {
         "default_title": "Quick Bookmark",
         "default_panel": "popup.html"
     },
-    "version": "1.0",
+    "version": "2.0",
     "browser_specific_settings": {
         "gecko": {
-            "id": "quick-bookmark@mozilla.org",
+            "id": "quick-bookmark@example.org",
             "strict_min_version": "58.0a1"
         }
     },
