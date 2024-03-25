@@ -298,7 +298,7 @@ function strmatch(a, b){
     let len_b = b.length
 
 
-    if(len_a == 0 || len_b == 0){
+    if(len_a == 0 || len_b == 0 || len_b > len_a){
         return Result(0, 0, 0)
     }
 
