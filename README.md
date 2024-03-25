@@ -8,4 +8,4 @@ it is inspired by fuzzy finders like fzf and telescope. i wanted to bring the sa
 
 releases are available in the releases tab
 
-the addon will also be available on the addon-store
+the stable version is available in the [mozilla addon store](https://addons.mozilla.org/en-US/firefox/addon/quick-bookmark-fuzzy/)
