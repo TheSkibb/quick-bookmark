@@ -65,6 +65,12 @@ function displayBookmarkList(bookmarks){
 function addBookmarkElement(bookmark){
     const bookmarkList = document.getElementById("bookmarkList")
 
+    if(bookmark.matchResult != undefined){
+        if(bookmark.matchResult.score == 0){
+            return
+        }
+    }
+
     let bookmarkElement = document.createElement("div")
     bookmarkElement.innerHTML = 
         '<a href="' + bookmark.url + '">' + 
@@ -130,6 +136,7 @@ addEventListener("keypress", (event) => {
             // if user is at start of list move to the first element
             // if user has moved down the list open the selected bookmark
             if(listIndex == undefined){
+                console.log("doing this")
                 move(false)
             }
             else{
@@ -187,16 +194,34 @@ document.onkeydown = function(evt) {
 function move(up){
     const maxIndex = document.getElementsByClassName("bookmarkElement").length
 
-    if(listIndex == null){
+    //does not exist (hopefully)
+    //will cause an error that can be ignored when element is the first one
+    var prevPos = 1000000
+
+    if(listIndex == null || listIndex == undefined){
         listIndex = 0
         //console.log("listindex is null")
     }
     else if(up && listIndex != 0){
+        prevPos = listIndex
         //console.log("movin up")
         listIndex -= 1
     }
+    else if(up && listIndex == 0){
+        prevPos = listIndex
+        listIndex = maxIndex - 1
+    }
     else if(!up && listIndex < maxIndex -1){ 
+        prevPos = listIndex
         listIndex += 1
+    }
+    else if(!up && listIndex == maxIndex -1){ 
+        prevPos = listIndex
+        listIndex = 0
+    }
+    else if(!up && listIndex == maxIndex){ 
+        prevPos = listIndex
+        console.log("at bottom elements")
     }
     else{
         //console.log(listIndex, maxIndex)
@@ -205,19 +230,17 @@ function move(up){
     if(listIndex <= maxIndex - 1){
         //console.log("list", listIndex)
         //console.log("max", maxIndex)
-        focusElement(listIndex, up)
+        focusElement(listIndex, prevPos)
     }
     
 }
 
-function focusElement(elementIndex, up){
-
-    let prevItem = up? elementIndex+1 : elementIndex-1
+function focusElement(elementIndex, prevPos){
 
     let bookmarkElements = document.getElementsByClassName("bookmarkElement")
 
     bookmarkElements.item(elementIndex).classList.add("bookmarkElementFocused")
-    bookmarkElements.item(prevItem).classList.remove("bookmarkElementFocused")
+    bookmarkElements.item(prevPos).classList.remove("bookmarkElementFocused")
 }
 
 // opens selected bookmark.
